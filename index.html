@@ -1,0 +1,369 @@
+<!-- FAVICON (Tarayıcı Sekme Logosu) -->
+<link rel="icon" href="sitelogo.png" type="image/png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+
+<!-- AÇILIŞ İNTROSU -->
+<div id="intro-screen">
+    <video id="intro-video" src="WEEKS.mp4" autoplay playsinline preload="auto"></video>
+</div>
+
+<!-- ÜST NAVİGASYON VE HEDEF ÇUBUĞU -->
+<header>
+    <div class="header-left">
+        <!-- Envanter Silme Butonu Olarak Yenilendi -->
+        <div class="header-icon" onclick="openClearInventoryModal()" title="Envanteri Sil">
+            <img src="sitelogo.png" alt="Logo" style="width: 24px; height: 24px; object-fit: contain;" onerror="this.style.display='none'">
+        </div>
+        <div class="header-title" onclick="navigate('main-page')">Week Product</div>
+        
+        <!-- Kazandığımız Ödüller Sıralama Alanı (Header) -->
+        <div id="unlocked-rewards-bar" class="unlocked-rewards-bar"></div>
+    </div>
+
+    <div class="case-counter-box" aria-label="Açılan Kasa Sayacı">
+        <div class="case-counter-label">Açılan Kasa Sayacı</div>
+        <div class="case-counter-value" id="case-counter-value">0</div>
+    </div>
+
+    <div class="header-right">
+        <!-- DROP SÜRESİ GOSTERGESI -->
+        <div class="drop-timer-box" id="drop-timer-display" title="Her 60 dakikada bir envanterinize kasa düşer!">
+            <img src="kutu.png" alt="Kutu" style="width: 18px; height: 18px; object-fit: contain;">
+            <span id="drop-timer-clock">60DK</span>
+        </div>
+
+        <!-- GLOBAL SOHBET BUTONU -->
+        <button class="header-btn chat-header-btn" onclick="openGlobalChat()" title="Global Sohbet" aria-label="Global Sohbet">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 9.4 9.4 0 0 1-4-.9L3 21l1.9-4.6A8.2 8.2 0 0 1 3 11.5 8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path>
+            </svg>
+        </button>
+
+        <!-- OTURUM AÇ / ÇIKIŞ YAP PEMBE BUTONU -->
+        <button id="auth-main-btn" class="auth-btn" onclick="handleAuthBtnClick()">Oturum Aç</button>
+        <button class="header-btn" onclick="toggleBackgroundMusic()" title="Arka Plan Müziği" id="music-btn">
+            <svg id="music-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<!-- ANA SAYFA -->
+<div id="main-page" class="page active">
+    <div class="main-container">
+        <div class="main-nav">
+            <button class="main-nav-btn" onclick="navigate('helpers-page')">Yardımcılar</button>
+            <button class="main-nav-btn" onclick="navigate('collectors-page')">Envanter</button>
+            <button class="main-nav-btn" onclick="navigate('social-page')">Rekabetçi</button>
+        </div>
+
+        <img src="ortadakilogo.png" class="main-center-logo" alt="Logo">
+
+        <button class="updates-button helpers-home-button" onclick="navigate('helpers-page')" aria-label="Yardımcılar">
+            <img src="yardimcilar.png" alt="Yardımcılar">
+        </button>
+
+        <button class="updates-button" onclick="openUpdatesModal()" aria-label="Yenilikleri Aç">
+            <img src="bildirimler.png" alt="Yenilikler">
+        </button>
+    </div>
+</div>
+
+<!-- GLOBAL SOHBET SAYFASI -->
+<div id="global-chat-page" class="page">
+    <div class="global-chat-content">
+        <div class="global-chat-topbar">
+            <button class="unified-btn-back" onclick="navigate('main-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Ana Sayfa
+            </button>
+            <h1 class="page-title global-chat-title">Global Sohbet</h1>
+            <div class="global-chat-status" id="global-chat-status">Bağlanıyor...</div>
+        </div>
+
+        <div class="global-chat-messages" id="global-chat-messages" aria-live="polite"></div>
+
+        <form class="global-chat-compose" id="global-chat-form" onsubmit="sendGlobalChatMessage(event)">
+            <input id="global-chat-input" class="global-chat-input" type="text" maxlength="500" autocomplete="off" placeholder="Mesajını yaz..." aria-label="Mesaj">
+            <button class="global-chat-send-btn" type="submit" aria-label="Gönder" title="Gönder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 2L11 13"></path>
+                    <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- YARDIMCILAR SAYFASI -->
+<div id="helpers-page" class="page">
+    <div class="inner-page-content helpers-page-content">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button class="unified-btn-back" onclick="navigate('main-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Ana Sayfa
+            </button>
+        </div>
+        <h1 class="page-title">Yardımcılar</h1>
+        <div class="helpers-single-button-wrap">
+            <button class="helper-main-card" onclick="navigate('crosshair-page')" aria-label="Crosshair">
+                <span>Crosshair</span>
+            </button>
+            <button class="helper-main-card ready-config-card" onclick="navigate('ready-config-page')" aria-label="Hazır Ayarlar">
+                <span>Hazır Ayarlar</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- CROSSHAIR SAYFASI -->
+<div id="crosshair-page" class="page">
+    <div class="inner-page-content crosshair-page-content">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button class="unified-btn-back" onclick="navigate('helpers-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Yardımcılar
+            </button>
+        </div>
+        <h1 class="page-title">Crosshair</h1>
+        <div class="crosshair-list">
+            <button class="crosshair-btn" onclick="copyCrosshair('CSGO-MXJGX-XepkW-7LfEO-uBwxy-29z6A', this)">clxlee Crosshair</button>
+            <button class="crosshair-btn" onclick="copyCrosshair('CSGO-xbpe2-E24RJ-YXNuO-pQvt8-ppNAK', this)">Xantares Crosshair</button>
+            <button class="crosshair-btn" onclick="copyCrosshair('CSGO-O36iX-6VGeQ-pnJLm-UWkab-osuWK', this)">donk Crosshair</button>
+            <button class="crosshair-btn" onclick="copyCrosshair('CSGO-s5Qbj-nvF89-cJjDd-mRdSG-5Yt4N', this)">s1mple Crosshair</button>
+            <button class="crosshair-btn" onclick="copyCrosshair('CSGO-SYZxB-Us6nS-mMNhJ-K4ukE-FkdVG', this)">ELiGE Crosshair</button>
+        </div>
+    </div>
+</div>
+
+<!-- HAZIR AYARLAR SAYFASI -->
+<div id="ready-config-page" class="page">
+    <div class="inner-page-content crosshair-page-content">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button class="unified-btn-back" onclick="navigate('helpers-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Yardımcılar
+            </button>
+        </div>
+
+        <div class="ready-config-title-row">
+            <h1 class="page-title">Hazır Ayar 1</h1>
+            <button class="btn-action ready-config-copy-btn" onclick="copyReadyConfig(this)">Kodu kopyalamak için tıkla*</button>
+        </div>
+
+        <div class="ready-config-code" id="ready-config-code">cl_crosshairstyle 4; cl_crosshair_friendly_warning 1; cl_crosshair_recoil 0; cl_crosshairdot 0; cl_crosshairsize 3.1; cl_crosshairthickness 1.0; cl_crosshairgap -2.8; cl_crosshair_drawoutline 0; cl_crosshair_outlinethickness 1.0; cl_crosshaircolor 5; cl_crosshaircolor_r 255; cl_crosshaircolor_g 0; cl_crosshaircolor_b 0; cl_crosshairusealpha 1; cl_crosshairalpha 255; cl_crosshair_t 0; cl_show_observer_crosshair 2; cl_observed_bot_crosshair 0; cl_radar_always_centered 1; cl_radar_rotate 1; cl_radar_square_with_scoreboard 1; cl_hud_radar_scale 1.00; cl_radar_scale 0.35; cl_radar_scale_alternate 1.00; cl_silencer_mode 0; viewmodel_presetpos 3; cl_prefer_lefthand 0; r_drawtracers_firstperson 1; cl_showloadout 1; cl_use_opens_buy_menu 0; cl_buywheel_nonumberpurchases 0; cl_buywheel_donate_key 0; cl_scoreboard_mouse_enable_binding "+attack2"; cl_obs_interp_enable 1; cl_obs_interp_pos_rate 1.00; cl_player_ping_mute 0; cl_mute_enemy_team 0; cl_mute_all_but_friends_and_party 0; cl_allow_animated_avatars 0; cl_hide_avatar_images 0; cl_sanitize_player_names 0; cl_teamid_overhead_mode 2; cl_teammate_colors_show 1; lobby_default_privacy_bits2 1; ui_setting_advertiseforinvite 0; hud_scaling 0.93; cl_hud_color 5; cl_teamcounter_playercount_instead_of_avatars 0</div>
+    </div>
+</div>
+
+<!-- COLLECTOR'S CS2 ENVANTER SAYFASI -->
+<div id="collectors-page" class="page">
+    <div class="inner-page-content">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button class="unified-btn-back" onclick="navigate('main-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Geri Dön
+            </button>
+        </div>
+
+        <div class="cs2-inventory-box">
+            <!-- 9 Slotlu Izgara Alanı -->
+            <div class="cs2-inventory-grid" id="cs2-inventory-grid">
+                <!-- JS ile Doldurulacak -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KASA AÇMA SAYFASI -->
+<div id="case-open-page" class="page">
+    <div class="inner-page-content">
+        <div style="text-align: left; margin-bottom: 10px;">
+            <button class="unified-btn-back" onclick="navigate('collectors-page')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Envanter
+            </button>
+        </div>
+
+        <h1 class="page-title" id="case-open-page-title" style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <img id="case-title-img" src="" alt="Kasa Görseli" style="width: 45px; height: 45px; object-fit: contain; border-radius: 8px;">
+            <span id="case-title-text">Kasa Aç</span>
+        </h1>
+
+        <div class="case-box-area">
+            
+            <!-- CS2 Kasa Çarkı (Kasa Açılınca Aktifleşir) -->
+            <div class="cs2-reel-wrapper" id="cs2-reel-wrapper">
+                <div class="cs2-reel-pointer"></div>
+                <div class="cs2-reel-track" id="cs2-reel-track"></div>
+            </div>
+
+            <!-- Kasa Ekranı Sahnesi -->
+            <div class="case-display-stage" id="case-display-stage">
+                <img id="case-image" src="kutu.png" class="case-icon-large" alt="Kasa" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'150\'><rect width=\'150\' height=\'150\' fill=\'%23e9445e\' rx=\'20\'/></svg>'">
+            </div>
+
+            <div id="case-result-display" style="min-height: 40px; font-size: 20px; font-weight: bold; color: var(--white); margin-bottom: 20px;">
+                Kasayı açmaya hazır mısın?
+            </div>
+
+            <button id="open-case-btn" class="btn-action" style="font-size: 22px; padding: 15px 50px; background-color: var(--text-pink);" onclick="startCS2CaseOpening()">AÇ</button>
+        </div>
+    </div>
+</div>
+
+<!-- REKABETÇİ SAYFASI -->
+<div id="social-page" class="page">
+    <div class="competitive-closed-page">
+        <div class="competitive-closed-text">Yakında Eklenecektir!</div>
+    </div>
+</div>
+
+<!-- YEDEK ANA MENÜ -->
+<div id="yedek-ana-menu-page" class="page">
+    <div class="competitive-page-content">
+        <div class="elo-display-area">
+            <div class="elo-label">Elo</div>
+            <div class="elo-value-box">
+                <span id="elo-value">5.000</span>
+            </div>
+        </div>
+
+        <div class="competitive-match-area">
+            <div id="match-search-text" class="match-search-text"></div>
+            <button id="match-search-btn" class="match-search-btn" onclick="startCompetitiveMatch()" aria-label="Maç Ara">
+                <img src="basla.png" alt="Maç Ara">
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- OTURUM AÇ / KAYIT OL MODALI -->
+<div id="auth-modal" class="modal-overlay" onclick="closeAuthModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+        <h2 id="auth-modal-title" style="color: var(--text-pink); margin-top: 0; font-size: 28px;">Oturum Aç</h2>
+        
+        <form class="auth-form" onsubmit="handleAuthSubmit(event)">
+            <input type="text" id="auth-username" class="auth-input" placeholder="Hesap İsmi" required autocomplete="username">
+            <input type="password" id="auth-password" class="auth-input" placeholder="Şifre" required autocomplete="current-password">
+            
+            <button type="submit" id="auth-submit-btn" class="btn-action" style="margin-top: 10px;">Giriş Yap</button>
+        </form>
+
+        <div class="auth-toggle-link" id="auth-toggle-btn" onclick="toggleAuthMode()">
+            Hesabın yok mu? Kayıt Ol
+        </div>
+    </div>
+</div>
+
+<!-- GENEL UYARI / BİLGİ MODALI -->
+<div id="custom-modal" class="modal-overlay" onclick="closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modal-content-text" class="modal-text"></div>
+    </div>
+</div>
+
+<!-- ÖDÜL KAZANMA POP-UP MODALI -->
+<div id="reward-win-modal" class="modal-overlay">
+    <div class="modal-box" style="border-color: #2ecc71;">
+        <h2 style="color: #2ecc71; margin-top: 0; font-size: 26px;">TEBRİKLER!</h2>
+        <img id="reward-win-img" src="" style="width: 120px; height: 120px; object-fit: contain; margin: 15px 0; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));">
+        <div id="reward-win-title" style="font-size: 22px; font-weight: bold; color: var(--white); margin-bottom: 20px;"></div>
+        <button class="btn-action" onclick="closeRewardWinModal()" style="background-color: #2ecc71; padding: 10px 30px;">TAMAM</button>
+    </div>
+</div>
+
+<!-- TAKAS EKRANI MODALI -->
+<div id="trade-modal" class="modal-overlay">
+    <div class="modal-box" style="background: #111; border: 2px solid #555; border-radius: 15px; padding: 40px; text-align: center; max-width: 320px;">
+        <div style="font-family: 'Pixelify Sans', sans-serif; font-size: 26px; color: #fff;">İtem Takaslanıyor...</div>
+    </div>
+</div>
+
+<!-- BİRLEŞTİRME MODALI -->
+<div id="merge-modal" class="modal-overlay" onclick="closeMergeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:760px; width:92%;">
+        <span class="close-btn" onclick="closeMergeModal()">&times;</span>
+        <h2 style="color:var(--text-pink); margin-top:0; font-size:26px;">Birleştir</h2>
+        <div id="merge-count" class="merge-count">0 / 10 seçildi</div>
+        <div id="merge-grid" class="merge-grid"></div>
+        <button id="merge-confirm-btn" class="btn-action" disabled style="margin-top:16px; opacity:.5;">Birleştir</button>
+    </div>
+</div>
+
+<!-- BİRLEŞTİRME KAZANÇ MODALI -->
+<div id="merge-win-modal" class="modal-overlay">
+    <div class="modal-box" style="border-color:#2ecc71;">
+        <h2 style="color:#2ecc71; margin-top:0; font-size:26px;">Şu eşyayı kazandınız:</h2>
+        <img id="merge-win-img" src="" style="width:140px;height:140px;object-fit:contain;margin:15px 0;">
+        <div id="merge-win-title" style="font-size:22px;font-weight:bold;color:var(--white);margin-bottom:20px;"></div>
+        <button class="btn-action" onclick="closeMergeWinModal()" style="background:#2ecc71;">TAMAM</button>
+    </div>
+</div>
+
+<!-- TEK İTEM SİLME ONAY MODALI -->
+<div id="delete-item-modal" class="modal-overlay" onclick="closeDeleteItemModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeDeleteItemModal()">&times;</span>
+        <p class="modal-text" style="font-size: 24px; margin-bottom: 25px;">Eşya Silinsin mi?</p>
+        <div style="display:flex; justify-content:center; gap:12px;">
+            <button class="btn-action" style="background-color: #e74c3c; padding: 12px 28px; font-size: 20px;" onclick="deleteSelectedItem()">Sil</button>
+            <button class="btn-action" style="background-color: var(--panel-border); padding: 12px 28px; font-size: 20px;" onclick="closeDeleteItemModal()">Hayır</button>
+        </div>
+    </div>
+</div>
+
+<!-- ENVANTER SİLME MODALI -->
+<div id="clear-inventory-modal" class="modal-overlay" onclick="closeClearInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeClearInventoryModal()">&times;</span>
+        <p class="modal-text" style="font-size: 22px; margin-bottom: 25px;">Tüm Envanteri Silmek İstediğine Emin Misin?</p>
+        <button class="btn-action" style="background-color: #e74c3c; padding: 12px 30px; font-size: 20px;" onclick="clearInventory()">Envanterimi Sil</button>
+    </div>
+</div>
+
+<!-- REKABETÇİ MAÇ PENCERESİ -->
+<div id="competitive-match-modal" class="competitive-match-modal" onclick="closeCompetitiveMatchModal()">
+    <div class="competitive-match-window" onclick="event.stopPropagation()">
+        <div id="competitive-match-title" class="competitive-match-title">Maç Bulundu</div>
+        <div id="competitive-match-content" class="competitive-match-content">
+            <button id="competitive-accept-btn" class="competitive-accept-btn" onclick="acceptCompetitiveMatch()">Kabul Et</button>
+        </div>
+    </div>
+</div>
+
+<!-- CS2 SAĞ TIK / İTEM ETKİLEŞİM MENÜSÜ -->
+<div id="cs2-context-menu" class="cs2-context-menu">
+    <button id="cs2-ctx-action-btn" class="cs2-context-btn">Aksiyon</button>
+    <button id="cs2-ctx-trade-btn" class="cs2-context-btn" style="display:none;">Takas</button>
+    <button id="cs2-ctx-merge-btn" class="cs2-context-btn" style="display:none;">Birleştir</button>
+    <button id="cs2-ctx-delete-btn" class="cs2-context-btn">Sil</button>
+</div>
+
+<div id="copy-notification" class="copy-notification">Panoya Kopyalandı!</div>
+
+<div id="updates-modal" class="updates-modal" onclick="closeUpdatesModal()">
+    <div class="updates-box" onclick="event.stopPropagation()">
+        <div class="updates-title">• Yenilikler</div>
+        <div class="updates-content">•  Ağustos 7
+Yeni kasalar ve trade up sistemi eklendi
+bu şekilde daha kolay nadir itemler
+düşürebileceksiniz
+
+• Ağustos 8
+Ana menüde değişiklikler oldu
+ve envanter arayüzü güncellendi.</div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool'></script>
