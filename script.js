@@ -225,13 +225,24 @@
 
     // KASA EKLE: Sitede tanımlı bütün kasalardan sınırsız şekilde rastgele bir tane ekler.
     function addRandomCaseToInventory() {
-        const caseKeys = Object.keys(CASE_TYPES);
-        if (!caseKeys.length) return;
+        if (!userStore || !Array.isArray(userStore.inventory)) {
+            return;
+        }
+
+        if (!CASE_TYPES || typeof CASE_TYPES !== 'object') {
+            console.error('CASE_TYPES bulunamadı.');
+            return;
+        }
+
+        const caseKeys = Object.keys(CASE_TYPES).filter(key => CASE_TYPES[key]);
+
+        if (caseKeys.length === 0) {
+            console.error('Eklenebilecek kasa bulunamadı.');
+            return;
+        }
 
         const randomKey = caseKeys[Math.floor(Math.random() * caseKeys.length)];
         const caseInfo = CASE_TYPES[randomKey];
-
-        if (!caseInfo) return;
 
         userStore.inventory.push({
             type: 'case',
@@ -241,10 +252,25 @@
         });
 
         saveUserData();
+        renderCS2Inventory();
 
-        // Pencere açık kalsın; tuşa istediğin kadar basabilirsin.
-        openClearInventoryModal();
+        // Pencere açık kalır; kullanıcı istediği kadar peş peşe kasa ekleyebilir.
+        // İşlemi de anında görsel olarak teyit et.
+        const button = document.getElementById('add-random-case-btn');
+        if (button) {
+            const originalText = button.textContent;
+            button.textContent = 'Kasa Eklendi ✓';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 700);
+        }
     }
+
+    // Fonksiyonu global scope'a açıkça bağla.
+    window.addRandomCaseToInventory = addRandomCaseToInventory;
 
     // OTURUM YÖNETİMİ
     function checkSessionOnLoad() {
@@ -1653,6 +1679,20 @@
         updateBackgroundMusicIcon();
         initCompetitivePage();
         startIntro();
+
+        // Kasa Ekle butonunu doğrudan event listener ile bağla.
+        // Böylece inline onclick / scope sorunları bu butonu etkileyemez.
+        const addCaseButton = document.getElementById('add-random-case-btn');
+
+        if (addCaseButton && addCaseButton.dataset.bound !== '1') {
+            addCaseButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                window.addRandomCaseToInventory();
+            });
+
+            addCaseButton.dataset.bound = '1';
+        }
 
         document.addEventListener(
             'click',
