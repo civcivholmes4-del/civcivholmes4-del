@@ -590,10 +590,10 @@
 <body class="upgrader-body">
     <header>
         <div class="header-left">
-            <a href="#" onclick="event.preventDefault(); openUpgraderParentOrFallback();" class="header-icon" title="Ana Sayfaya Dön" style="text-decoration:none;">
+            <a href="index.html#collectors-page" class="header-icon" title="Ana Sayfaya Dön" style="text-decoration:none;">
                 <img src="sitelogo.png" alt="Logo" style="width:24px;height:24px;object-fit:contain;" onerror="this.style.display='none'">
             </a>
-            <a href="#" onclick="event.preventDefault(); openUpgraderParentOrFallback();" class="header-title" style="text-decoration:none;">Week Product</a>
+            <a href="index.html#collectors-page" class="header-title" style="text-decoration:none;">Week Product</a>
         </div>
 
         <div class="upgrader-account-badge" id="upgrader-account-badge">Misafir Envanteri</div>
@@ -1027,16 +1027,7 @@
         }
 
         function returnToInventory() {
-            if (window.parent && window.parent !== window && typeof window.parent.returnFromUpgrader === 'function') {
-                window.parent.returnFromUpgrader();
-                return;
-            }
-
             window.location.href = 'index.html#collectors-page';
-        }
-
-        function openUpgraderParentOrFallback() {
-            returnToInventory();
         }
 
         function bootUpgrader() {
