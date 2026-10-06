@@ -7,25 +7,30 @@
 
 <link rel="stylesheet" href="style.css">
 
-<style id="upgrader-return-style">
-    html.return-to-inventory #intro-screen { display: none !important; }
-    html.return-to-inventory #main-page { display: none !important; }
-    html.return-to-inventory #collectors-page { display: flex !important; }
-</style>
+<style id="upgrader-frame-style">
+    #upgrader-frame-layer {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        background: var(--bg-main);
+        z-index: 5000;
+        overflow: hidden;
+    }
 
-<script>
-    (function () {
-        if (window.location.hash === '#collectors-page') {
-            document.documentElement.classList.add('return-to-inventory');
-            window.addEventListener('DOMContentLoaded', function () {
-                if (typeof navigate === 'function') {
-                    navigate('collectors-page');
-                }
-                window.history.replaceState(null, '', window.location.pathname + window.location.search);
-            }, { once: true });
-        }
-    })();
-</script>
+    #upgrader-frame-layer.active {
+        display: block;
+    }
+
+    #upgrader-frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: var(--bg-main);
+    }
+</style>
 
 <!-- AÇILIŞ İNTROSU -->
 <div id="intro-screen">
@@ -363,6 +368,11 @@
     </div>
 </div>
 
+<!-- UPGRADER TAM EKRAN KATMANI -->
+<div id="upgrader-frame-layer" aria-hidden="true">
+    <iframe id="upgrader-frame" src="about:blank" title="Upgrader"></iframe>
+</div>
+
 <!-- CS2 SAĞ TIK / İTEM ETKİLEŞİM MENÜSÜ -->
 <div id="cs2-context-menu" class="cs2-context-menu">
     <button id="cs2-ctx-action-btn" class="cs2-context-btn">Aksiyon</button>
@@ -389,9 +399,60 @@ ve envanter arayüzü güncellendi.</div>
 
 <script src="script.js"></script>
 <script>
+    let upgraderFrameOpen = false;
+
     function openUpgraderPage() {
-        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#collectors-page');
-        window.location.href = 'upgrader.html';
+        const layer = document.getElementById('upgrader-frame-layer');
+        const frame = document.getElementById('upgrader-frame');
+        if (!layer || !frame) return;
+
+        if (!upgraderFrameOpen) {
+            window.history.pushState({ weekPage: 'upgrader' }, '', '#upgrader');
+        }
+
+        upgraderFrameOpen = true;
+        layer.classList.add('active');
+        layer.setAttribute('aria-hidden', 'false');
+
+        // Her açılışta temiz bir Upgrader iframe'i oluşturuyoruz.
+        // Ana index.html yeniden yüklenmediği için background music / intro Audio ve
+        // video durumları kesinlikle sıfırlanmaz.
+        frame.src = 'upgrader.html?embedded=1';
     }
+
+    function returnFromUpgrader() {
+        const layer = document.getElementById('upgrader-frame-layer');
+        const frame = document.getElementById('upgrader-frame');
+        if (!layer || !frame) return;
+
+        upgraderFrameOpen = false;
+
+        // Önce iframe'i tamamen unload ediyoruz. Böylece gizli bir ikinci sayfa,
+        // eski click handler'ları veya kasa arayüzünün altında kalan ghost DOM kalmaz.
+        frame.src = 'about:blank';
+        frame.removeAttribute('data-loaded');
+        layer.classList.remove('active');
+        layer.setAttribute('aria-hidden', 'true');
+
+        window.history.replaceState({ weekPage: 'collectors' }, '', '#collectors-page');
+
+        // Upgrader kendi iframe scope'unda LocalStorage'a yazdığı için ana sayfadaki
+        // belleğe alınmış userStore'u dönüşte taze veriden yeniden kuruyoruz.
+        // Böylece kazanılan nadir item / silinen skinler anında ana envantere yansır.
+        if (typeof loadUserData === 'function') {
+            loadUserData();
+        }
+
+        // Ana sayfa hiç yeniden yüklenmediğinden sesler kaldıkları yerden devam eder.
+        if (typeof navigate === 'function') {
+            navigate('collectors-page');
+        }
+    }
+
+    window.addEventListener('popstate', function () {
+        if (upgraderFrameOpen) {
+            returnFromUpgrader();
+        }
+    });
 </script>
 <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool'></script>
