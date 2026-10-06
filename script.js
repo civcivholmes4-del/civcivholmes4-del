@@ -133,7 +133,43 @@
     }
 
     function saveUserData() {
-        localStorage.setItem(getStoreKey(), JSON.stringify(userStore));
+        const storeKey = getStoreKey();
+
+        // Upgrader index.html içinde iframe olarak açıkken kendi LocalStorage
+        // yazma işlemini yapabilir. Ana sayfanın eski userStore'u her saniye
+        // bunun üzerine yazıp Upgrader sonucunu ezmesin. Bu durumda yalnızca
+        // ana sayfanın zamana bağlı alanını güncelleyip mevcut inventory/unlockedOrder
+        // verisini LocalStorage'daki en güncel sürümden koruyoruz.
+        if (typeof upgraderFrameOpen !== 'undefined' && upgraderFrameOpen) {
+            let persistedStore = null;
+
+            try {
+                const raw = localStorage.getItem(storeKey);
+                persistedStore = raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                persistedStore = null;
+            }
+
+            if (!persistedStore || typeof persistedStore !== 'object') {
+                persistedStore = {};
+            }
+
+            persistedStore.inventory = Array.isArray(persistedStore.inventory)
+                ? persistedStore.inventory
+                : (userStore.inventory || []);
+            persistedStore.unlockedOrder = Array.isArray(persistedStore.unlockedOrder)
+                ? persistedStore.unlockedOrder
+                : (userStore.unlockedOrder || []);
+            persistedStore.dropTimerSeconds = userStore.dropTimerSeconds;
+
+            localStorage.setItem(storeKey, JSON.stringify(persistedStore));
+
+            updateHeaderUnlockedRewards();
+            renderCS2Inventory();
+            return;
+        }
+
+        localStorage.setItem(storeKey, JSON.stringify(userStore));
         updateHeaderUnlockedRewards();
         renderCS2Inventory();
     }
