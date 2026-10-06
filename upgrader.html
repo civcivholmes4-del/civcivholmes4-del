@@ -590,10 +590,10 @@
 <body class="upgrader-body">
     <header>
         <div class="header-left">
-            <a href="index.html#collectors-page" class="header-icon" title="Ana Sayfaya Dön" style="text-decoration:none;">
+            <a href="#" onclick="event.preventDefault(); openUpgraderParentOrFallback();" class="header-icon" title="Ana Sayfaya Dön" style="text-decoration:none;">
                 <img src="sitelogo.png" alt="Logo" style="width:24px;height:24px;object-fit:contain;" onerror="this.style.display='none'">
             </a>
-            <a href="index.html#collectors-page" class="header-title" style="text-decoration:none;">Week Product</a>
+            <a href="#" onclick="event.preventDefault(); openUpgraderParentOrFallback();" class="header-title" style="text-decoration:none;">Week Product</a>
         </div>
 
         <div class="upgrader-account-badge" id="upgrader-account-badge">Misafir Envanteri</div>
@@ -1027,7 +1027,16 @@
         }
 
         function returnToInventory() {
+            if (window.parent && window.parent !== window && typeof window.parent.returnFromUpgrader === 'function') {
+                window.parent.returnFromUpgrader();
+                return;
+            }
+
             window.location.href = 'index.html#collectors-page';
+        }
+
+        function openUpgraderParentOrFallback() {
+            returnToInventory();
         }
 
         function bootUpgrader() {
@@ -1038,24 +1047,10 @@
             renderInventory();
         }
 
-        window.addEventListener('storage', event => {
-            if (event.key === 'week_active_user' || event.key === getStoreKey()) {
-                if (isSpinning) return;
-
-                currentUser = localStorage.getItem('week_active_user') || null;
-                readUserStore();
-                updateAccountBadge();
-                selectedInventoryIndices = [];
-                selectedTargetId = null;
-                document.getElementById('upgrader-target-box').innerHTML = `
-                    <div class="upgrader-target-placeholder">
-                        Sağdaki listeden bir<br>%3 hedef seç
-                    </div>
-                `;
-                renderTargetList();
-                renderInventory();
-            }
-        });
+        // DİKKAT: Ana sayfadaki script.js userStore'u her saniye LocalStorage'a
+        // yazdığı için burada storage event'i ile seçimleri sıfırlamak YANLIŞTIR.
+        // Upgrader kendi seçimini bellekte korur; gerçek envanter değişikliği
+        // yalnızca ÇEVİR işlemi sonunda saveUserStore() ile yapılır.
 
         document.addEventListener('DOMContentLoaded', bootUpgrader);
     </script>
