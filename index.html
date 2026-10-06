@@ -7,6 +7,25 @@
 
 <link rel="stylesheet" href="style.css">
 
+<style id="upgrader-return-style">
+    html.return-to-inventory #intro-screen { display: none !important; }
+    html.return-to-inventory #main-page { display: none !important; }
+    html.return-to-inventory #collectors-page { display: flex !important; }
+</style>
+
+<script>
+    (function () {
+        if (window.location.hash === '#collectors-page') {
+            document.documentElement.classList.add('return-to-inventory');
+            window.addEventListener('DOMContentLoaded', function () {
+                if (typeof navigate === 'function') {
+                    navigate('collectors-page');
+                }
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }, { once: true });
+        }
+    })();
+</script>
 
 <!-- AÇILIŞ İNTROSU -->
 <div id="intro-screen">
@@ -171,7 +190,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Geri Dön
             </button>
-            <button class="unified-btn-back" type="button" style="margin-left: 8px;" onclick="window.location.href='upgrader.html'">
+            <button class="unified-btn-back" type="button" style="margin-left: 8px;" onclick="openUpgraderPage()">
                 Upgrader
             </button>
         </div>
@@ -369,4 +388,10 @@ ve envanter arayüzü güncellendi.</div>
 </div>
 
 <script src="script.js"></script>
+<script>
+    function openUpgraderPage() {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#collectors-page');
+        window.location.href = 'upgrader.html';
+    }
+</script>
 <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool'></script>
