@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrader - Week Product</title>
+    <link rel="icon" href="sitelogo.png" type="image/png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body.upgrader-body {
+            min-height: 100vh;
+            height: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--bg-main);
+        }
+
+        .upgrader-page {
+            width: 100%;
+            min-height: calc(100vh - 65px);
+            box-sizing: border-box;
+            padding: 24px 24px 90px;
+        }
+
+        .upgrader-topbar {
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .upgrader-title {
+            margin: 0;
+            color: var(--white);
+            font-size: 36px;
+            font-weight: 700;
+            border-bottom: 3px solid var(--text-pink);
+            padding-bottom: 8px;
+        }
+
+        .upgrader-account-badge {
+            color: #b9c1ca;
+            background: rgba(0,0,0,0.24);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .upgrader-layout {
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(380px, 0.92fr) minmax(520px, 1.55fr);
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .upgrader-panel {
+            background: #1e242c;
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.34);
+            box-sizing: border-box;
+        }
+
+        .upgrader-left {
+            padding: 20px;
+            min-height: 680px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upgrader-right {
+            padding: 18px;
+            min-height: 680px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .upgrader-section-label {
+            color: #9aa4af;
+            font-family: 'Roboto Condensed', sans-serif !important;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .upgrader-preview-row {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 22px;
+            align-items: center;
+        }
+
+        .upgrader-target-box {
+            width: 180px;
+            height: 180px;
+            border-radius: 16px;
+            background: #111418;
+            border: 2px solid #3b4653;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025), 0 10px 24px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .upgrader-target-box::after {
+            content: "HEDEF";
+            position: absolute;
+            top: 9px;
+            left: 10px;
+            font-size: 10px;
+            color: #747e89;
+            letter-spacing: 1px;
+        }
+
+        .upgrader-target-placeholder {
+            color: #5f6873;
+            font-size: 16px;
+            text-align: center;
+            line-height: 1.25;
+            padding: 18px;
+        }
+
+        .upgrader-target-img {
+            width: 86%;
+            height: 86%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 14px rgba(0,0,0,0.6));
+            animation: upgraderTargetIn 0.25s ease;
+        }
+
+        @keyframes upgraderTargetIn {
+            from { opacity: 0; transform: scale(0.82); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .upgrader-wheel-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .upgrader-wheel-shell {
+            width: 260px;
+            height: 260px;
+            max-width: 100%;
+            aspect-ratio: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upgrader-wheel {
+            --chance-angle: 0deg;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transform: rotate(0deg);
+            transition: transform 4.7s cubic-bezier(0.12, 0.82, 0.16, 1);
+            background:
+                radial-gradient(circle at center, #20252d 0 57%, transparent 58%),
+                repeating-conic-gradient(from 0deg, rgba(255,255,255,0.035) 0deg 1deg, transparent 1deg 18deg),
+                conic-gradient(from 0deg, #ffd74a 0deg var(--chance-angle), #353c46 var(--chance-angle) 360deg);
+            border: 3px solid #0e1115;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.42), inset 0 0 0 2px rgba(255,255,255,0.04);
+            will-change: transform;
+        }
+
+        .upgrader-wheel::before {
+            content: "";
+            position: absolute;
+            inset: 13px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.06);
+            pointer-events: none;
+        }
+
+        .upgrader-wheel-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .upgrader-wheel-percent {
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif !important;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .upgrader-wheel-count {
+            color: #adb6c0;
+            font-family: 'Roboto Condensed', sans-serif !important;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .upgrader-pointer {
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 9px solid transparent;
+            border-right: 9px solid transparent;
+            border-top: 17px solid var(--text-pink);
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.45));
+            z-index: 8;
+        }
+
+        .upgrader-chance-text {
+            margin-top: 10px;
+            color: #d9dde2;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .upgrader-spin-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .upgrader-spin-btn {
+            min-width: 170px;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 26px;
+            background: var(--text-pink);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(233,68,94,0.25);
+            transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+        }
+
+        .upgrader-spin-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            filter: brightness(1.06);
+        }
+
+        .upgrader-spin-btn:active:not(:disabled) {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .upgrader-spin-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .upgrader-result {
+            min-height: 26px;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .upgrader-result.success {
+            color: #31d158;
+        }
+
+        .upgrader-result.fail {
+            color: #d5dbe2;
+        }
+
+        .upgrader-targets {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .upgrader-target-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            max-height: 285px;
+            overflow-y: auto;
+            padding-right: 4px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--panel-border) transparent;
+        }
+
+        .upgrader-target-grid::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .upgrader-target-grid::-webkit-scrollbar-thumb {
+            background: var(--panel-border);
+            border-radius: 10px;
+        }
+
+        .upgrader-target-card {
+            border: 1px solid #394552;
+            background: #151a20;
+            border-radius: 11px;
+            padding: 8px;
+            min-height: 110px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 5px;
+            transition: 0.2s ease;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .upgrader-target-card:hover {
+            border-color: var(--text-pink);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(233,68,94,0.18);
+        }
+
+        .upgrader-target-card.selected {
+            border-color: #ffd74a;
+            box-shadow: 0 0 0 2px rgba(255,215,74,0.16), 0 8px 18px rgba(0,0,0,0.22);
+        }
+
+        .upgrader-target-img-small {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+        }
+
+        .upgrader-target-name {
+            color: #ffffff;
+            font-size: 11px;
+            line-height: 1.15;
+            max-height: 27px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .upgrader-target-rarity {
+            color: #ffd74a;
+            font-family: 'Roboto Condensed', sans-serif !important;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .upgrader-inventory-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .upgrader-inventory-title {
+            margin: 0;
+            color: #ffffff;
+            font-size: 25px;
+        }
+
+        .upgrader-inventory-count {
+            color: #9fa9b4;
+            font-family: 'Roboto Condensed', sans-serif !important;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .upgrader-inventory-grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+            grid-auto-rows: 190px;
+            gap: 12px;
+            overflow-y: auto;
+            padding: 4px 4px 8px 0;
+            align-content: start;
+            scrollbar-width: thin;
+            scrollbar-color: var(--panel-border) transparent;
+        }
+
+        .upgrader-inventory-grid::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .upgrader-inventory-grid::-webkit-scrollbar-thumb {
+            background: var(--panel-border);
+            border-radius: 10px;
+        }
+
+        .upgrader-item-card {
+            background: #151a20;
+            border: 1px solid #394552;
+            border-radius: 10px;
+            padding: 8px;
+            box-sizing: border-box;
+            cursor: pointer;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            transition: 0.2s ease;
+        }
+
+        .upgrader-item-card:hover {
+            border-color: var(--text-pink);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 16px rgba(233,68,94,0.16);
+        }
+
+        .upgrader-item-card.selected {
+            border-color: #ffd74a;
+            box-shadow: 0 0 0 2px rgba(255,215,74,0.14);
+        }
+
+        .upgrader-item-card.locked {
+            cursor: not-allowed;
+            opacity: 0.46;
+        }
+
+        .upgrader-item-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 7px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #ffd74a;
+            color: #13171c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif !important;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .upgrader-item-img-wrap {
+            width: 100%;
+            height: 135px;
+            border-radius: 7px;
+            background: rgba(0,0,0,0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .upgrader-item-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .upgrader-item-name {
+            width: 100%;
+            margin-top: 8px;
+            color: #ffffff;
+            font-size: 12px;
+            line-height: 1.15;
+            text-align: center;
+            min-height: 28px;
+            max-height: 28px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow-wrap: anywhere;
+        }
+
+        .upgrader-empty {
+            grid-column: 1 / -1;
+            min-height: 180px;
+            border: 1px dashed #3d4752;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #7c8792;
+            padding: 20px;
+        }
+
+        .upgrader-notice {
+            margin-top: 10px;
+            color: #77818b;
+            font-size: 11px;
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        @media (max-width: 1150px) {
+            .upgrader-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .upgrader-left,
+            .upgrader-right {
+                min-height: auto;
+            }
+
+            .upgrader-inventory-grid {
+                max-height: 650px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .upgrader-page {
+                padding: 16px 12px 75px;
+            }
+
+            .upgrader-topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .upgrader-title {
+                font-size: 30px;
+            }
+
+            .upgrader-left {
+                padding: 14px;
+            }
+
+            .upgrader-preview-row {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .upgrader-target-box {
+                width: min(180px, 60vw);
+                height: min(180px, 60vw);
+            }
+
+            .upgrader-wheel-shell {
+                width: min(260px, 75vw);
+                height: min(260px, 75vw);
+            }
+
+            .upgrader-target-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .upgrader-inventory-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-auto-rows: 180px;
+            }
+
+            .upgrader-item-img-wrap {
+                height: 124px;
+            }
+        }
+    </style>
+</head>
+
+<body class="upgrader-body">
+    <header>
+        <div class="header-left">
+            <a href="index.html" class="header-icon" title="Ana Sayfaya Dön" style="text-decoration:none;">
+                <img src="sitelogo.png" alt="Logo" style="width:24px;height:24px;object-fit:contain;" onerror="this.style.display='none'">
+            </a>
+            <a href="index.html" class="header-title" style="text-decoration:none;">Week Product</a>
+        </div>
+
+        <div class="upgrader-account-badge" id="upgrader-account-badge">Misafir Envanteri</div>
+    </header>
+
+    <main class="upgrader-page">
+        <div class="upgrader-topbar">
+            <a class="unified-btn-back" href="index.html">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Envantere Dön
+            </a>
+            <h1 class="upgrader-title">Upgrader</h1>
+        </div>
+
+        <div class="upgrader-layout">
+            <section class="upgrader-panel upgrader-left">
+                <div class="upgrader-section-label">Hedef ve Olasılık</div>
+
+                <div class="upgrader-preview-row">
+                    <div class="upgrader-target-box" id="upgrader-target-box">
+                        <div class="upgrader-target-placeholder" id="upgrader-target-placeholder">
+                            Sağdaki listeden bir<br>%3 hedef seç
+                        </div>
+                    </div>
+
+                    <div class="upgrader-wheel-wrap">
+                        <div class="upgrader-wheel-shell">
+                            <div class="upgrader-pointer"></div>
+                            <div class="upgrader-wheel" id="upgrader-wheel">
+                                <div class="upgrader-wheel-center">
+                                    <div class="upgrader-wheel-percent" id="upgrader-percent">0%</div>
+                                    <div class="upgrader-wheel-count" id="upgrader-count">0 skin</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="upgrader-chance-text" id="upgrader-chance-text">Şans: %0</div>
+
+                        <div class="upgrader-spin-wrap">
+                            <button class="upgrader-spin-btn" id="upgrader-spin-btn" onclick="spinUpgrader()" disabled>
+                                ÇEVİR
+                            </button>
+                        </div>
+
+                        <div class="upgrader-result" id="upgrader-result"></div>
+                    </div>
+                </div>
+
+                <div class="upgrader-targets">
+                    <div class="upgrader-section-label">%3 Nadir Bıçak / Eldiven Hedefleri</div>
+                    <div class="upgrader-target-grid" id="upgrader-target-grid"></div>
+                </div>
+
+                <div class="upgrader-notice">
+                    Her seçilen uygun skin şansı %5 artırır. En fazla 20 skin seçilebilir; %100'de daha fazla seçim yapılamaz.
+                </div>
+            </section>
+
+            <section class="upgrader-panel upgrader-right">
+                <div class="upgrader-inventory-head">
+                    <div>
+                        <div class="upgrader-section-label" style="margin-bottom:5px;">Kendi Envanterin</div>
+                        <h2 class="upgrader-inventory-title">Yükseltmeye Uygun Skinler</h2>
+                    </div>
+                    <div class="upgrader-inventory-count" id="upgrader-inventory-count">0 uygun skin</div>
+                </div>
+
+                <div class="upgrader-inventory-grid" id="upgrader-inventory-grid"></div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const UPGRADER_RARE_ITEMS = [
+  {
+    "id": "m9_gamma",
+    "name": "M9 Bayonet - Gamma Doppler",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1Wts2sab1iLvWHMWad_ul3vexocC28hQ0rti-6iof4Mi6TAVp5Xco0W-UPsBDuwdfgN-jn5FHXjdpNzn322CpP5i064-oBVaEm_PWGjFmXMrAjoc5UYR0MRG0"
+  },
+  {
+    "id": "eldiven_amfibik",
+    "name": "Spor Eldivenleri - Amfibik",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H-CcB3Sfz9Fwou5ucCu_gBgYpDWMjorGLSLANkI-W5R4E7JZtxbskNWxZeLi4QPejdgTmSn62iwbvyw957kDAqog_fXWjBaBb-Pahe96zA"
+  },
+  {
+    "id": "sargi_dikkat",
+    "name": "El Sargıları - DİKKAT!",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqh4mpimMlYHGLSLANkI-CcBxQeIMtEHsl4CyNOjm4QDa3dgTniWvjnhJ7Hk54bsEV_Ak-KWE3BaBb-Pt8HWajg"
+  },
+  {
+    "id": "kelebek_gamma",
+    "name": "Kelebek Bıçak - Gamma Doppler",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1Z-ua6bbZrLOmsD2qvxu97veBWSyajhREioQKVko7qJHj4Ml93UtZuTbULtxfsxNDjZejqtFbajIMUyy36iytOvS1u5-ZXVPAt_PbejgiSZap9v8cjE0cexQ"
+  },
+  {
+    "id": "karambit_doppler",
+    "name": "Karambit - Lore",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1Q7uCvZaZkNM-QG1ibwPx3vd5lQDu2qhEutDWR1IqrIHLCZlUmDJYlTLFb50HuwdyxPu2w4lCKjI5HniT2jS1PuCxj5e0cEf1y9ZCADXU"
+  },
+  {
+    "id": "hunters_bowie",
+    "name": "Avcı Bıçağı - Laminalt",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1P7vG6YadsLM-UHViY1OBio-xoQRaxmRwkuAKJm4LwLyrTO2l8U8UoAfkJ5kTsmtfvNe7mswOL3YNByX_9338Y7ig44-cEV_Yk_PGBjgnCZeY7_9Bdc4dD_RHM"
+  },
+  {
+    "id": "hunters_karambit",
+    "name": "Avcı Bıçağı - Mor",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1P7vG6YadsLM-QG1iA1PxmvORWRzy9gQ4qsjO6lob-KT-JbFQlC5YhFrQN4xe4m4ezNL7g4QyLiItFyS772C5I7ilq6rpWUaYh-rqX0V82KISxGQ"
+  },
+  {
+    "id": "alev_bowie",
+    "name": "Bowie Bıçağı - Otomatik",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1I-uC4YbJsLM-RAXCZxNFxo95rQD66kCImpimKjp32LyLEAVp5Xco0W-cIsEW9xty1Zb-z7gHd3o8UzSv3hypNvX0-tu5QWKMk-6XUjAiUYLAjoc5UIuuJ8AY"
+  },
+  {
+    "id": "bowie_laminalt",
+    "name": "Kelebek Bıçak - Su",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1Z-ua6bbZrLOmsBn6vzu1zse9WRCe6kxgY6m26lob-KT-JbgckDsR5TeRftkKwxN3mY7nq7wbci4hBzy783X5P7iZp67sEWaV0qbqX0V8sk0fSOA"
+  },
+  {
+    "id": "kancali_laminalt",
+    "name": "Kancalı Bıçak - Laminalt",
+    "img": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL6kJ_m-B1c-uaRe7RSNPGDC1iF0-x3vt5lRi67gVN0t2WGz9z8cHufa1IpX5skQbJbuxHtl9KxZu7ntgWM3o8Uziishi5J8G81tIA_RSBn"
+  }
+];
+
+        const MAX_SELECTED = 20;
+        const CHANCE_PER_ITEM = 5;
+        const STORE_PREFIX = 'week_user_store_';
+
+        let currentUser = null;
+        let userStore = { inventory: [], unlockedOrder: [], dropTimerSeconds: 3600 };
+        let selectedInventoryIndices = [];
+        let selectedTargetId = null;
+        let isSpinning = false;
+
+        function getStoreKey() {
+            return STORE_PREFIX + (currentUser || 'guest');
+        }
+
+        function readUserStore() {
+            const raw = localStorage.getItem(getStoreKey());
+
+            if (!raw) {
+                userStore = { inventory: [], unlockedOrder: [], dropTimerSeconds: 3600 };
+                return;
+            }
+
+            try {
+                userStore = JSON.parse(raw);
+            } catch (error) {
+                console.warn('Upgrader envanter verisi okunamadı:', error);
+                userStore = { inventory: [], unlockedOrder: [], dropTimerSeconds: 3600 };
+            }
+
+            if (!userStore || typeof userStore !== 'object') userStore = {};
+            if (!Array.isArray(userStore.inventory)) userStore.inventory = [];
+        }
+
+        function saveUserStore() {
+            localStorage.setItem(getStoreKey(), JSON.stringify(userStore));
+        }
+
+        function getEligibleInventoryItems() {
+            return (userStore.inventory || [])
+                .map((item, index) => ({ item, index }))
+                .filter(({
+                    item
+                }) => {
+                    if (!item || item.type === 'case') return false;
+                    if (item.type && item.type !== 'item') return false;
+                    return !item.isRare && !item.isMusic;
+                });
+        }
+
+        function updateAccountBadge() {
+            const el = document.getElementById('upgrader-account-badge');
+            if (!el) return;
+            el.innerText = currentUser
+                ? `Hesap: ${currentUser}`
+                : 'Misafir Envanteri';
+        }
+
+        function renderTargetList() {
+            const grid = document.getElementById('upgrader-target-grid');
+            grid.innerHTML = '';
+
+            UPGRADER_RARE_ITEMS.forEach(item => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'upgrader-target-card' + (selectedTargetId === item.id ? ' selected' : '');
+                card.title = item.name;
+
+                card.innerHTML = `
+                    <img src="${item.img}" class="upgrader-target-img-small" alt="${escapeHtml(item.name)}">
+                    <div class="upgrader-target-name">${escapeHtml(item.name)}</div>
+                    <div class="upgrader-target-rarity">Nadir · %3</div>
+                `;
+
+                card.onclick = () => selectTarget(item.id);
+                grid.appendChild(card);
+            });
+        }
+
+        function selectTarget(id) {
+            if (isSpinning) return;
+
+            const target = UPGRADER_RARE_ITEMS.find(item => item.id === id);
+            if (!target) return;
+
+            selectedTargetId = id;
+            renderTargetList();
+
+            const box = document.getElementById('upgrader-target-box');
+            box.innerHTML = `
+                <img
+                    src="${target.img}"
+                    class="upgrader-target-img"
+                    alt="${escapeHtml(target.name)}"
+                    title="${escapeHtml(target.name)}"
+                >
+            `;
+
+            updateSpinButton();
+        }
+
+        function updateWheelVisual() {
+            const selectedCount = selectedInventoryIndices.length;
+            const chance = Math.min(selectedCount * CHANCE_PER_ITEM, 100);
+            const angle = chance * 3.6;
+
+            const wheel = document.getElementById('upgrader-wheel');
+            wheel.style.setProperty('--chance-angle', `${angle}deg`);
+
+            document.getElementById('upgrader-percent').innerText = `${chance}%`;
+            document.getElementById('upgrader-count').innerText = `${selectedCount} skin`;
+            document.getElementById('upgrader-chance-text').innerText = `Şans: %${chance}`;
+
+            updateSpinButton();
+        }
+
+        function updateSpinButton() {
+            const btn = document.getElementById('upgrader-spin-btn');
+            btn.disabled = isSpinning || selectedInventoryIndices.length === 0 || !selectedTargetId;
+        }
+
+        function renderInventory() {
+            const grid = document.getElementById('upgrader-inventory-grid');
+            const countEl = document.getElementById('upgrader-inventory-count');
+
+            grid.innerHTML = '';
+
+            const eligible = getEligibleInventoryItems();
+            countEl.innerText = `${eligible.length} uygun skin`;
+
+            if (!eligible.length) {
+                const empty = document.createElement('div');
+                empty.className = 'upgrader-empty';
+                empty.innerHTML = 'Envanterinde yükseltmeye uygun skin bulunmuyor.<br><br>Bıçaklar, eldivenler ve müzik kitleri burada gösterilmez.';
+                grid.appendChild(empty);
+                updateWheelVisual();
+                return;
+            }
+
+            eligible.forEach(({
+                item,
+                index
+            }) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+
+                const selected = selectedInventoryIndices.includes(index);
+                const locked = !selected && selectedInventoryIndices.length >= MAX_SELECTED;
+
+                card.className =
+                    'upgrader-item-card' +
+                    (selected ? ' selected' : '') +
+                    (locked ? ' locked' : '');
+
+                card.innerHTML = `
+                    <div class="upgrader-item-img-wrap">
+                        <img src="${item.img}" class="upgrader-item-img" alt="${escapeHtml(item.name || 'Skin')}">
+                    </div>
+                    <div class="upgrader-item-name">${escapeHtml(item.name || 'Skin')}</div>
+                `;
+
+                card.onclick = () => toggleInventorySelection(index);
+                grid.appendChild(card);
+            });
+
+            updateWheelVisual();
+        }
+
+        function toggleInventorySelection(index) {
+            if (isSpinning) return;
+
+            const position = selectedInventoryIndices.indexOf(index);
+
+            if (position !== -1) {
+                selectedInventoryIndices.splice(position, 1);
+            } else {
+                if (selectedInventoryIndices.length >= MAX_SELECTED) return;
+                selectedInventoryIndices.push(index);
+            }
+
+            renderInventory();
+        }
+
+        function spinUpgrader() {
+            if (isSpinning) return;
+
+            const target = UPGRADER_RARE_ITEMS.find(item => item.id === selectedTargetId);
+            if (!target || selectedInventoryIndices.length === 0) return;
+
+            const chance = Math.min(selectedInventoryIndices.length * CHANCE_PER_ITEM, 100);
+            if (chance <= 0) return;
+
+            isSpinning = true;
+            const btn = document.getElementById('upgrader-spin-btn');
+            const wheel = document.getElementById('upgrader-wheel');
+            const result = document.getElementById('upgrader-result');
+
+            btn.disabled = true;
+            result.className = 'upgrader-result';
+            result.innerText = 'Çark dönüyor...';
+
+            // Başarı veya kayıp önceden değil, yalnızca ÇEVİR anında rastgele belirlenir.
+            const success = Math.random() < (chance / 100);
+            const chanceAngle = chance * 3.6;
+
+            let targetAngle;
+            if (success) {
+                targetAngle = Math.random() * chanceAngle;
+            } else {
+                targetAngle = chanceAngle + Math.random() * Math.max(0.001, 360 - chanceAngle);
+            }
+
+            const normalizedPointerRotation = 360 - targetAngle;
+            const fullSpins = 5 + Math.floor(Math.random() * 2);
+            const finalRotation = (fullSpins * 360) + normalizedPointerRotation;
+
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+            window.setTimeout(() => {
+                finishUpgrade(success, target);
+            }, 4800);
+        }
+
+        function finishUpgrade(success, target) {
+            const selectedSet = new Set(selectedInventoryIndices);
+
+            // Envanter dizisindeki indeksler kaymasın diye büyükten küçüğe sil.
+            [...selectedSet]
+                .sort((a, b) => b - a)
+                .forEach(index => {
+                    if (index >= 0 && index < userStore.inventory.length) {
+                        userStore.inventory.splice(index, 1);
+                    }
+                });
+
+            if (success) {
+                userStore.inventory.push({
+                    type: 'item',
+                    id: target.id,
+                    name: target.name,
+                    img: target.img,
+                    case: getTargetCase(target.id),
+                    isRare: true
+                });
+            }
+
+            saveUserStore();
+
+            const result = document.getElementById('upgrader-result');
+            result.className = 'upgrader-result ' + (success ? 'success' : 'fail');
+
+            if (success) {
+                result.innerText = `✓ Başarılı! ${target.name} envanterine eklendi.`;
+            } else {
+                result.innerText = '✕ Başarısız. Seçtiğin skinler kayboldu.';
+            }
+
+            selectedInventoryIndices = [];
+            selectedTargetId = null;
+            isSpinning = false;
+
+            document.getElementById('upgrader-target-box').innerHTML = `
+                <div class="upgrader-target-placeholder">
+                    Sonuçlandı.<br>Yeni hedef seç
+                </div>
+            `;
+
+            // Çarkı yeniden sıfır konumuna alırken animasyonun görsel bitişi korunur.
+            const wheel = document.getElementById('upgrader-wheel');
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            void wheel.offsetWidth;
+            wheel.style.transition = 'transform 4.7s cubic-bezier(0.12, 0.82, 0.16, 1)';
+
+            renderTargetList();
+            renderInventory();
+        }
+
+        // Kaydedilen hedefin "case" bilgisini mevcut catalog üzerinden tutmak yerine,
+        // Upgrader'ın yaptığı nadir item eklemesi için bilinen kasa ilişkilerini koruyoruz.
+        function getTargetCase(id) {
+            const cases = {
+                m9_gamma: 'parlak',
+                eldiven_amfibik: 'hayalet',
+                sargi_dikkat: 'hayalet',
+                kelebek_gamma: 'kelebek',
+                karambit_doppler: 'arabesk',
+                hunters_bowie: 'kirilma',
+                hunters_karambit: 'kirilma',
+                alev_bowie: 'alev',
+                bowie_laminalt: 'ortacag',
+                kancali_laminalt: 'ortacag'
+            };
+            return cases[id] || '';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function bootUpgrader() {
+            currentUser = localStorage.getItem('week_active_user') || null;
+            readUserStore();
+            updateAccountBadge();
+            renderTargetList();
+            renderInventory();
+        }
+
+        window.addEventListener('storage', event => {
+            if (event.key === 'week_active_user' || event.key === getStoreKey()) {
+                if (isSpinning) return;
+
+                currentUser = localStorage.getItem('week_active_user') || null;
+                readUserStore();
+                updateAccountBadge();
+                selectedInventoryIndices = [];
+                selectedTargetId = null;
+                document.getElementById('upgrader-target-box').innerHTML = `
+                    <div class="upgrader-target-placeholder">
+                        Sağdaki listeden bir<br>%3 hedef seç
+                    </div>
+                `;
+                renderTargetList();
+                renderInventory();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', bootUpgrader);
+    </script>
+</body>
+</html>
