@@ -7,30 +7,25 @@
 
 <link rel="stylesheet" href="style.css">
 
-<style id="upgrader-frame-style">
-    #upgrader-frame-layer {
-        position: fixed;
-        inset: 0;
-        width: 100vw;
-        height: 100vh;
-        display: none;
-        background: var(--bg-main);
-        z-index: 5000;
-        overflow: hidden;
-    }
-
-    #upgrader-frame-layer.active {
-        display: block;
-    }
-
-    #upgrader-frame {
-        width: 100%;
-        height: 100%;
-        border: 0;
-        display: block;
-        background: var(--bg-main);
-    }
+<style id="upgrader-return-style">
+    html.return-to-inventory #intro-screen { display: none !important; }
+    html.return-to-inventory #main-page { display: none !important; }
+    html.return-to-inventory #collectors-page { display: flex !important; }
 </style>
+
+<script>
+    (function () {
+        if (window.location.hash === '#collectors-page') {
+            document.documentElement.classList.add('return-to-inventory');
+            window.addEventListener('DOMContentLoaded', function () {
+                if (typeof navigate === 'function') {
+                    navigate('collectors-page');
+                }
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+            }, { once: true });
+        }
+    })();
+</script>
 
 <!-- AÇILIŞ İNTROSU -->
 <div id="intro-screen">
@@ -368,11 +363,6 @@
     </div>
 </div>
 
-<!-- UPGRADER TAM EKRAN KATMANI -->
-<div id="upgrader-frame-layer" aria-hidden="true">
-    <iframe id="upgrader-frame" src="about:blank" title="Upgrader"></iframe>
-</div>
-
 <!-- CS2 SAĞ TIK / İTEM ETKİLEŞİM MENÜSÜ -->
 <div id="cs2-context-menu" class="cs2-context-menu">
     <button id="cs2-ctx-action-btn" class="cs2-context-btn">Aksiyon</button>
@@ -399,48 +389,9 @@ ve envanter arayüzü güncellendi.</div>
 
 <script src="script.js"></script>
 <script>
-    let upgraderFrameOpen = false;
-
     function openUpgraderPage() {
-        const layer = document.getElementById('upgrader-frame-layer');
-        const frame = document.getElementById('upgrader-frame');
-        if (!layer || !frame) return;
-
-        if (!upgraderFrameOpen) {
-            window.history.pushState({ weekPage: 'upgrader' }, '', '#upgrader');
-        }
-
-        upgraderFrameOpen = true;
-        layer.classList.add('active');
-        layer.setAttribute('aria-hidden', 'false');
-
-        if (frame.src === 'about:blank' || !frame.dataset.loaded) {
-            frame.src = 'upgrader.html';
-            frame.dataset.loaded = 'true';
-        }
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#collectors-page');
+        window.location.href = 'upgrader.html';
     }
-
-    function returnFromUpgrader() {
-        const layer = document.getElementById('upgrader-frame-layer');
-        if (!layer) return;
-
-        upgraderFrameOpen = false;
-        window.history.replaceState({ weekPage: 'collectors' }, '', '#collectors-page');
-        layer.classList.remove('active');
-        layer.setAttribute('aria-hidden', 'true');
-
-        // iframe gizlendiği için Upgrader'ın LocalStorage değişiklikleri korunur.
-        // Ana index.html hiç yeniden yüklenmediğinden arka plan müziği ve diğer sesler
-        // başladığı konumdan kesintisiz şekilde devam eder.
-        if (typeof navigate === 'function') {
-            navigate('collectors-page');
-        }
-    }
-
-    window.addEventListener('popstate', function () {
-        if (upgraderFrameOpen) {
-            returnFromUpgrader();
-        }
-    });
 </script>
 <script disable-devtool-auto src='https://cdn.jsdelivr.net/npm/disable-devtool'></script>
