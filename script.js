@@ -100,7 +100,7 @@
     let userStore = {
         inventory: [],
         unlockedOrder: [],
-        dropTimerSeconds: 3600
+        dropTimerSeconds: 1800
     };
 
     // LOCALSTORAGE YÜKLEME VE KAYDETME
@@ -120,13 +120,19 @@
                     { type: 'case', caseKey: 'kelebek', name: 'Kelebek Kasası', img: 'kutu.png' }
                 ],
                 unlockedOrder: [],
-                dropTimerSeconds: 3600
+                dropTimerSeconds: 1800
             };
         }
 
         if (!userStore.inventory) userStore.inventory = [];
         if (!userStore.unlockedOrder) userStore.unlockedOrder = [];
-        if (typeof userStore.dropTimerSeconds !== 'number') userStore.dropTimerSeconds = 3600;
+        if (typeof userStore.dropTimerSeconds !== 'number') userStore.dropTimerSeconds = 1800;
+
+        // Eski 60 dakikalık sistemden kalan sayaçları yeni 30 dakikalık
+        // sisteme geçir. Daha düşük mevcut süreler aynen korunur.
+        if (userStore.dropTimerSeconds > 1800) {
+            userStore.dropTimerSeconds = 1800;
+        }
 
         updateHeaderUnlockedRewards();
         renderCS2Inventory();
@@ -174,13 +180,13 @@
         renderCS2Inventory();
     }
 
-    // HOURLY DROP SÜRESİ MANTIĞI (60 DAKİKA)
+    // KASA DROP SÜRESİ MANTIĞI (30 DAKİKA)
     setInterval(() => {
         if (userStore.dropTimerSeconds > 0) {
             userStore.dropTimerSeconds--;
         } else {
-            userStore.dropTimerSeconds = 3600;
-            grantRandomCaseDrop();
+            userStore.dropTimerSeconds = 1800;
+            grantRandomCaseDrop(2);
         }
         updateDropTimerUI();
         saveUserData();
@@ -194,29 +200,50 @@
         }
     }
 
-    function grantRandomCaseDrop() {
-        const rand = Math.random() * 100;
-        let droppedCaseKey = 'kelebek';
+    function grantRandomCaseDrop(count = 2) {
+        // Mevcut saatlik drop havuzu aynen korunur:
+        // Kelebek, Parlak, Müzik Kiti ve Hayalet.
+        const dropPool = ['kelebek', 'parlak', 'muzik', 'hayalet'];
 
-        if (rand < 25) {
-            droppedCaseKey = 'kelebek';
-        } else if (rand < 50) {
-            droppedCaseKey = 'parlak';
-        } else if (rand < 75) {
-            droppedCaseKey = 'muzik';
-        } else {
-            droppedCaseKey = 'hayalet';
+        for (let i = 0; i < count; i++) {
+            const droppedCaseKey =
+                dropPool[Math.floor(Math.random() * dropPool.length)];
+            const caseInfo = CASE_TYPES[droppedCaseKey];
+
+            if (!caseInfo) continue;
+
+            userStore.inventory.push({
+                type: 'case',
+                caseKey: droppedCaseKey,
+                name: caseInfo.name,
+                img: caseInfo.img
+            });
         }
 
-        const caseInfo = CASE_TYPES[droppedCaseKey];
+        saveUserData();
+    }
+
+    // KASA EKLE: Sitede tanımlı bütün kasalardan sınırsız şekilde rastgele bir tane ekler.
+    function addRandomCaseToInventory() {
+        const caseKeys = Object.keys(CASE_TYPES);
+        if (!caseKeys.length) return;
+
+        const randomKey = caseKeys[Math.floor(Math.random() * caseKeys.length)];
+        const caseInfo = CASE_TYPES[randomKey];
+
+        if (!caseInfo) return;
+
         userStore.inventory.push({
             type: 'case',
-            caseKey: droppedCaseKey,
+            caseKey: randomKey,
             name: caseInfo.name,
             img: caseInfo.img
         });
 
         saveUserData();
+
+        // Pencere açık kalsın; tuşa istediğin kadar basabilirsin.
+        openClearInventoryModal();
     }
 
     // OTURUM YÖNETİMİ
